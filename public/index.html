@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        C2X
+    </title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+            crossorigin=""></script>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #mapid {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .map-marker span {
+            width: 20px;
+            height: 20px;
+            display: block;
+            left: -10px;
+            top: -10px;
+            position: relative;
+            border-radius: 50% 50% 0;
+            transform: rotate(45deg);
+            border: 2px solid #fff;
+            box-shadow: 2px 2px 4px rgba(0,0,0,.3);
+        }
+
+        .map-marker-1 span {
+            background-color: #0077DD;
+        }
+
+        .map-marker-2 span {
+            background-color: #dd5522;
+        }
+
+        .map-marker-3 span {
+            background-color: #333333;
+        }
+
+        .map-marker-4 span {
+            background-color: #E80C7A;
+        }
+
+        .map-marker-5 span {
+            background-color: #B27C4C;
+        }
+
+        .map-marker-6 span {
+            background-color: #4CB26F;
+        }
+
+        .map-marker-7 span {
+            background-color: #9112B2;
+        }
+
+        .map-marker-8 span {
+            background-color: #FFBC19;
+        }
+
+        .map-marker-9 span {
+            background-color: #0DFF87;
+        }
+    </style>
+</head>
+
+<body>
+<div id="mapid"></div>
+
+<script>
+    const INACTIVITY_INTERVAL = 3000;
+
+    let icons = [];
+
+    for (let i = 0; i < 10; i++) {
+        icons.push(L.divIcon({
+            className: "map-marker map-marker-" + i,
+            iconAnchor: [0, 24],
+            labelAnchor: [-6, 0],
+            popupAnchor: [0, -36],
+            html: '<span></span>'
+        }));
+    }
+
+    let map = L.map('mapid').setView([49.005171, 8.437448], 13);
+
+    // See http://leaflet-extras.github.io/leaflet-providers/preview/
+    L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    let stations = {};
+
+    window.onCam = function (cam) {
+        if (stations[cam.stationId]) {
+            let marker = stations[cam.stationId].marker;
+            marker.setLatLng(cam.position);
+            stations[cam.stationId].last_update = +new Date;
+        } else {
+            let marker = L.marker(cam.position, {
+                icon: icons[cam.stationId % 10]
+            }).addTo(map);
+
+            stations[cam.stationId] = {
+                id: cam.stationId,
+                position: cam.position,
+                marker: marker,
+                last_update: +new Date,
+            };
+        }
+    };
+
+    window.setInterval(function () {
+        for (let id in stations) {
+            if (!stations.hasOwnProperty(id)) {
+                continue;
+            }
+
+            if (stations[id].last_update < +new Date - INACTIVITY_INTERVAL) {
+                stations[id].marker.removeFrom(map);
+                delete stations[id];
+            }
+        }
+    }, 100);
+
+    let socket = new WebSocket("ws://localhost:8000/cams");
+    socket.onmessage = function (e) {
+        try {
+            let data = JSON.parse(e.data);
+            window.onCam(data);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+</script>
+</body>
+
+</html>
