@@ -5,12 +5,8 @@
         C2X
     </title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
-          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
-          crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
-            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
-            crossorigin=""></script>
+    <link rel="stylesheet" href="/css/leaflet.css">
+    <script src="/js/leaflet.min.js" crossorigin="anonymous"></script>
 
     <style>
         body {
@@ -91,11 +87,12 @@
         }));
     }
 
-    let map = L.map('mapid').setView([49.005171, 8.437448], 13);
+    let map = L.map('mapid').setView([49.005171, 8.437448], 14);
 
     // See http://leaflet-extras.github.io/leaflet-providers/preview/
-    L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
-        maxZoom: 18,
+    L.tileLayer('http://localhost/osm_tiles/{z}/{x}/{y}.png', {
+        maxZoom: 16,
+        minZoom: 13,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
