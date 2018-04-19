@@ -35,6 +35,16 @@ class CamPublisher implements Application {
             }
         });
 
+        asyncCall(function () {
+            /** @var Redis\Subscription $subscription */
+            $subscription = yield $this->redis->subscribe('spat');
+
+            while (yield $subscription->advance()) {
+                $spat = $subscription->getCurrent();
+                $this->endpoint->broadcast($spat);
+            }
+        });
+
         return new Success;
     }
 

@@ -28,7 +28,7 @@ function style_osm_bright() {
     cd /usr/local/share/maps/style
 
     if [ ! -d 'osm-bright-master' ]; then
-        wget https://github.com/mapbox/osm-bright/archive/master.zip
+        wget -q https://github.com/mapbox/osm-bright/archive/master.zip
         unzip master.zip;
         mkdir -p osm-bright-master/shp
         rm master.zip
@@ -36,7 +36,7 @@ function style_osm_bright() {
 
     for shp in 'land-polygons-split-3857' 'simplified-land-polygons-complete-3857'; do
         if [ ! -d "osm-bright-master/shp/${shp}" ]; then
-            wget http://data.openstreetmapdata.com/${shp}.zip
+            wget -q http://data.openstreetmapdata.com/${shp}.zip
             unzip ${shp}.zip;
             mv ${shp}/ osm-bright-master/shp/
             rm ${shp}.zip
@@ -47,7 +47,7 @@ function style_osm_bright() {
     done
 
     if [ ! -d 'osm-bright-master/shp/ne_10m_populated_places' ]; then
-        wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+        wget -q http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
         unzip ne_10m_populated_places.zip
         mkdir -p osm-bright-master/shp/ne_10m_populated_places
         rm ne_10m_populated_places.zip
@@ -94,43 +94,6 @@ function install_npm_carto(){
     ln -sf /usr/local/lib/node_modules/carto/bin/carto /usr/local/bin/carto
 }
 
-function enable_osm_updates(){
-    apt-get -y install osmosis
-
-    export WORKDIR_OSM=/home/${OSM_USER}/.osmosis
-
-    if [ $(grep -c 'WORKDIR_OSM' /etc/environment) -eq 0 ]; then
-        echo 'export WORKDIR_OSM=/home/tile/.osmosis' >> /etc/environment
-        mkdir -p $WORKDIR_OSM
-        osmosis --read-replication-interval-init workingDirectory=${WORKDIR_OSM}
-    fi
-
-    # 2. Generating state.txt
-    if [ ! -f ${WORKDIR_OSM}/state.txt ]; then
-        # NOTE: If you want hourly updates set stream=hourly
-        STATE_URL="http://osm.personalwerk.de/replicate-sequences/?Y=$(date '+%Y')&m=$(date '+%m')&d=$(date '+%d')&H=$(date '+%H')&i=$(date '+%M')&s=$(date '+%S')&stream=day"
-        wget -O${WORKDIR_OSM}/state.txt ${STATE_URL}
-    fi
-
-    # 3. Fix configuration.txt
-    # Get the URL from http://download.geofabrik.de/europe/germany.html
-    # example PBF_URL='http://download.geofabrik.de/europe/germany-latest.osm.pbf'
-    UPDATE_URL="$(echo ${PBF_URL} | sed 's/latest.osm.pbf/updates/')"
-    sed -i.save "s|#\?baseUrl=.*|baseUrl=${UPDATE_URL}|" ${WORKDIR_OSM}/configuration.txt
-
-    # 4. Add step 4 to cron, to make it run every day
-    if [ ! -f /etc/cron.daily/osm-update.sh ]; then
-        cat >/etc/cron.daily/osm-update.sh <<CMD_EOF
-#!/bin/bash
-export WORKDIR_OSM=/home/${OSM_USER}/.osmosis
-export PGPASSWORD="${OSM_PG_PASS}"
-osmosis --read-replication-interval workingDirectory=${WORKDIR_OSM} --simplify-change --write-xml-change /tmp/changes.osc.gz
-su -c 'osm2pgsql --append ${osm2pgsql_OPTS} /tmp/changes.osc.gz' - postgres
-CMD_EOF
-        chmod +x /etc/cron.daily/osm-update.sh
-    fi
-}
-
 PG_VER=$(pg_config | grep '^VERSION' | cut -f4 -d' ' | cut -f1,2 -d.)
 
 # 3 Create system user
@@ -156,7 +119,7 @@ else
 fi
 
 if [ $(psql -Upostgres -c "select datname from pg_database" | grep -m 1 -c ${OSM_DB}) -eq 0 ]; then
-    psql -Upostgres -c "create database ${OSM_DB} WITH ENCODING 'UTF8' owner=${OSM_USER};"
+    psql -Upostgres -c "create database ${OSM_DB} owner=${OSM_USER};"
 fi
 
 psql -Upostgres ${OSM_DB} <<EOF_CMD
@@ -201,7 +164,7 @@ if [ -z "$(which renderd)" ]; then    #if mapnik is not installed
 
     # Hacky way to start renderd after Postgres, because it doesn't recover otherwise...
     cat >/etc/cron.d/renderd <<CMD_EOF
-@reboot root (sleep 10; /etc/init.d/renderd start) &
+@reboot root (sleep 30; /etc/init.d/renderd restart) &
 CMD_EOF
 
     cd ../
@@ -303,8 +266,9 @@ sed -i.save 's/#\?fsync.*/fsync = on/' /etc/postgresql/${PG_VER}/main/postgresql
 sed -i.save 's/#\?autovacuum.*/autovacuum = on/' /etc/postgresql/${PG_VER}/main/postgresql.conf
 
 ldconfig
-# Disable for now, because something is broken
-enable_osm_updates
 
 # tiles need to have access without password
 sed -i 's/local all all.*/local all all trust/'  /etc/postgresql/${PG_VER}/main/pg_hba.conf
+
+# Fix for encoding, otherwise renderd doesn't start properly, see https://stackoverflow.com/a/5091083/23731
+psql -Upostgres -c "update pg_database set encoding = pg_char_to_encoding('UTF8') where datname = 'gis';"
