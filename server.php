@@ -30,8 +30,8 @@ Loop::run(function () {
     $options = (new Options)->withDebugMode();
 
     $server = new Server([
-        Socket\listen("127.0.0.1:8000"),
-        Socket\listen("[::1]:8000"),
+        Socket\listen("0.0.0.0:8000"),
+        Socket\listen("[::]:8000"),
     ], $router, $logger, $options);
 
     yield $server->start();
