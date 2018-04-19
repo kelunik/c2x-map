@@ -16,6 +16,8 @@ $mapLanes = [];
 foreach ($intersections as $intersection) {
     $geo = $intersection["itsis.IntersectionGeometry_element"];
 
+    $intersectionId = $geo["itsis.id_element"]["itsis.id"];
+
     $name = $geo["itsis.name"];
     $refPoint = [
         $geo["itsis.refPoint_element"]["itsis.lat"] / 10000000,
@@ -96,7 +98,7 @@ foreach ($mapLanes as $laneId => $lane) {
                 "stroke" => "#0033dd",
                 "stroke-width" => 3,
                 "stroke-opacity" => .5,
-                "name" => $signalGroup,
+                "name" => $intersectionId . "." . $signalGroup,
             ],
             "geometry" => [
                 "type" => "LineString",
