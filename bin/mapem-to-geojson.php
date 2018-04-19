@@ -69,8 +69,8 @@ foreach ($intersections as $intersection) {
         $features[] = [
             "type" => "Feature",
             "properties" => [
-                "stroke" => "#000000",
-                "stroke-width" => 3,
+                "stroke" => "#ccc",
+                "stroke-width" => 4,
                 "stroke-opacity" => .5,
             ],
             "geometry" => [
@@ -95,8 +95,8 @@ foreach ($mapLanes as $laneId => $lane) {
         $features[] = [
             "type" => "Feature",
             "properties" => [
-                "stroke" => "#0033dd",
-                "stroke-width" => 3,
+                "stroke" => "#aaa",
+                "stroke-width" => 4,
                 "stroke-opacity" => .5,
                 "name" => $intersectionId . "." . $signalGroup,
             ],
