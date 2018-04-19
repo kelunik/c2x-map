@@ -132,13 +132,16 @@
         }
     }, 1000);
 
-    let socket = new WebSocket("ws://localhost:8000/cams");
+    let socket = new WebSocket("ws://localhost:8000/updates");
     socket.onmessage = function (e) {
         try {
             let data = JSON.parse(e.data);
-            // window.onCam(data);
 
-            window.onSpat(data);
+            if (data.type === "cam") {
+                window.onCam(data.data);
+            } else if (data.type === "spat") {
+                window.onSpat(data.data);
+            }
         } catch (e) {
             console.log(e);
         }

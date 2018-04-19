@@ -7,41 +7,44 @@ use Amp\Http\Server\Response;
 use Amp\Http\Server\Websocket\Application;
 use Amp\Http\Server\Websocket\Endpoint;
 use Amp\Http\Server\Websocket\Message;
-use Amp\Redis;
+use Amp\Socket\Server;
+use Amp\Socket\ServerSocket;
 use Amp\Success;
 use function Amp\asyncCall;
+use function Amp\Socket\listen;
 
-class CamPublisher implements Application {
+class Publisher implements Application {
     /** @var Endpoint */
     private $endpoint;
 
-    /** @var Redis\SubscribeClient */
-    private $redis;
+    /** @var Server */
+    private $socket;
 
-    public function __construct(Redis\SubscribeClient $redis) {
-        $this->redis = $redis;
+    public function __construct() {
+        // nothing to do
     }
 
     public function onStart(Endpoint $endpoint) {
         $this->endpoint = $endpoint;
+        $this->socket = listen('127.0.0.1:8001');
 
         asyncCall(function () {
-            /** @var Redis\Subscription $subscription */
-            $subscription = yield $this->redis->subscribe('cam');
+            /** @var ServerSocket $client */
+            while ($client = yield $this->socket->accept()) {
+                asyncCall(function () use ($client) {
+                    $buffer = '';
 
-            while (yield $subscription->advance()) {
-                $cam = $subscription->getCurrent();
-                $this->endpoint->broadcast($cam);
-            }
-        });
+                    while (null !== $chunk = yield $client->read()) {
+                        $buffer .= $chunk;
 
-        asyncCall(function () {
-            /** @var Redis\Subscription $subscription */
-            $subscription = yield $this->redis->subscribe('spat');
+                        while (($pos = \strpos($buffer, "\n")) !== false) {
+                            $line = \substr($buffer, 0, $pos);
+                            $buffer = \substr($buffer, $pos + 1);
 
-            while (yield $subscription->advance()) {
-                $spat = $subscription->getCurrent();
-                $this->endpoint->broadcast($spat);
+                            yield $this->endpoint->broadcast($line);
+                        }
+                    }
+                });
             }
         });
 
@@ -65,6 +68,8 @@ class CamPublisher implements Application {
     }
 
     public function onStop() {
+        $this->socket->close();
+
         return new Success;
     }
 }

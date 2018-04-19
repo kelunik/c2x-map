@@ -5,24 +5,21 @@ require __DIR__ . '/vendor/autoload.php';
 use Amp\ByteStream\ResourceOutputStream;
 use Amp\Http\Server\Options;
 use Amp\Http\Server\Router;
+use Amp\Http\Server\Server;
 use Amp\Http\Server\StaticContent\DocumentRoot;
 use Amp\Http\Server\Websocket\Websocket;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Loop;
-use Amp\Redis\SubscribeClient;
 use Amp\Socket;
-use Amp\Http\Server\Server;
-use Kelunik\C2X\Map\CamPublisher;
+use Kelunik\C2X\Map\Publisher;
 use Monolog\Logger;
 
 Loop::run(function () {
     $documentRoot = new DocumentRoot(__DIR__ . '/public');
 
-    $redis = new SubscribeClient("tcp://127.0.0.1:6379");
-
     $router = new Router;
-    $router->addRoute("GET", "/cams", new Websocket(new CamPublisher($redis)));
+    $router->addRoute("GET", "/updates", new Websocket(new Publisher));
     $router->setFallback($documentRoot);
 
     $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));

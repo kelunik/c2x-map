@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec9acc2581983db5dc84947a23cb2d02",
+    "content-hash": "c0a8515bbaf972a5be9483a964590e62",
     "packages": [
         {
             "name": "amphp/amp",
@@ -570,12 +570,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/http-server-static-content.git",
-                "reference": "47a2015205394f7daa11ec1a59c00385f4263f11"
+                "reference": "a66a58a9b3263be5ddda7ee129831ce603358651"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/http-server-static-content/zipball/47a2015205394f7daa11ec1a59c00385f4263f11",
-                "reference": "47a2015205394f7daa11ec1a59c00385f4263f11",
+                "url": "https://api.github.com/repos/amphp/http-server-static-content/zipball/a66a58a9b3263be5ddda7ee129831ce603358651",
+                "reference": "a66a58a9b3263be5ddda7ee129831ce603358651",
                 "shasum": ""
             },
             "require": {
@@ -631,7 +631,7 @@
                 "server",
                 "static"
             ],
-            "time": "2018-04-09T04:49:26+00:00"
+            "time": "2018-04-15T04:55:19+00:00"
         },
         {
             "name": "amphp/log",
@@ -862,58 +862,6 @@
             "description": "Asynchronous process manager.",
             "homepage": "https://github.com/amphp/process",
             "time": "2018-04-08T18:55:42+00:00"
-        },
-        {
-            "name": "amphp/redis",
-            "version": "v0.3.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/redis.git",
-                "reference": "bf4155dd431c9a37631ac3597b71567ed4a41fa2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/redis/zipball/bf4155dd431c9a37631ac3597b71567ed4a41fa2",
-                "reference": "bf4155dd431c9a37631ac3597b71567ed4a41fa2",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "^2",
-                "amphp/cache": "^1",
-                "amphp/socket": "^0.10",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "amphp/phpunit-util": "^1",
-                "friendsofphp/php-cs-fixer": "^2.3",
-                "phpunit/phpunit": "^6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Amp\\Redis\\": "lib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Niklas Keller",
-                    "email": "me@kelunik.com"
-                }
-            ],
-            "description": "A non-blocking Redis client for Amp.",
-            "homepage": "https://github.com/amphp/redis",
-            "keywords": [
-                "amp",
-                "amphp",
-                "async",
-                "client",
-                "redis"
-            ],
-            "time": "2017-11-17T14:09:59+00:00"
         },
         {
             "name": "amphp/socket",
@@ -1459,71 +1407,6 @@
                 "wss"
             ],
             "time": "2018-03-14T08:33:20+00:00"
-        },
-        {
-            "name": "markrogoyski/math-php",
-            "version": "v0.40.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/markrogoyski/math-php.git",
-                "reference": "22b3ec83e0e98484d502eac4a149ddf06c886eaf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/markrogoyski/math-php/zipball/22b3ec83e0e98484d502eac4a149ddf06c886eaf",
-                "reference": "22b3ec83e0e98484d502eac4a149ddf06c886eaf",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.0.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "6.*",
-                "satooshi/php-coveralls": "^2.0",
-                "squizlabs/php_codesniffer": "2.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "MathPHP\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mark Rogoyski",
-                    "email": "mark@rogoyski.com",
-                    "homepage": "https://github.com/markrogoyski",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Kevin Nowaczyk",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jakob Sandberg",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Math Library for PHP. Features descriptive statistics and regressions; Continuous and discrete probability distributions; Linear algebra with matrices and vectors, Numerical analysis; special mathematical functions; Algebra",
-            "homepage": "https://github.com/markrogoyski/math-php/",
-            "keywords": [
-                "algebra",
-                "combinatorics",
-                "distributions",
-                "linear algebra",
-                "math",
-                "mathematics",
-                "matrix",
-                "numerical analysis",
-                "probability",
-                "regressions",
-                "statistics"
-            ],
-            "time": "2018-03-22T05:06:47+00:00"
         },
         {
             "name": "monolog/monolog",
