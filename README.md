@@ -1,6 +1,8 @@
-<a href="https://github.com/kelunik/c2x-map">
-  <img src="https://github.com/kelunik/c2x-map/blob/master/logo.png?raw=true" width="200" align="center" alt="C2X MAP">
-</a>
+<p align="center">
+  <a href="https://github.com/kelunik/c2x-map">
+    <img src="https://github.com/kelunik/c2x-map/blob/master/logo.png?raw=true" width="200" alt="C2X MAP">
+  </a>
+</p>
 
 This repository contains a visualization tool for several V2X messages.
 These messages aren't processed by the tools in this repository, but only visualized.
