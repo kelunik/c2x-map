@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/css/leaflet.css">
     <script src="/js/leaflet.min.js" crossorigin="anonymous"></script>
+    <script src="/js/leaflet.rotatedMarker.js" crossorigin="anonymous"></script>
 
     <style>
         body {
@@ -20,55 +21,72 @@
 
         .map-marker span {
             width: 20px;
-            height: 20px;
-            display: block;
+            height: 45px;
             left: -10px;
-            top: -10px;
+            top: -22.5px;
             position: relative;
-            border-radius: 50% 50% 0;
-            transform: rotate(45deg);
-            border: 2px solid #fff;
-            box-shadow: 2px 2px 4px rgba(0,0,0,.3);
+            background-position:  center center;
+            background-size: contain;
+            display: none;
+            transform-origin: center center;
+        }
+
+        .zoom-18 .map-marker span {
+            transform: scale(0.4);
+            display: block;
+        }
+
+        .zoom-17 .map-marker span {
+            transform: scale(0.2);
+            display: block;
+        }
+
+        .zoom-16 .map-marker span {
+            transform: scale(0.1);
+            display: block;
+        }
+
+        .zoom-15 .map-marker span {
+            transform: scale(0.05);
+            display: block;
+        }
+
+        .zoom-14 .map-marker span {
+            transform: scale(0.025);
+            display: block;
+        }
+
+        .zoom-13 .map-marker span {
+            transform: scale(0.0125);
+            display: block;
         }
 
         .map-marker-0 span {
-            background-color: #AAAAAA;
+            background-image: url(/img/cars/grey.png);
         }
 
         .map-marker-1 span {
-            background-color: #0077DD;
+            background-image: url(/img/cars/blue.png);
         }
 
         .map-marker-2 span {
-            background-color: #dd5522;
+            background-image: url(/img/cars/red.png);
         }
 
         .map-marker-3 span {
-            background-color: #333333;
+            background-image: url(/img/cars/blue.png);
         }
 
         .map-marker-4 span {
-            background-color: #E80C7A;
+            background-image: url(/img/cars/yellow.png);
         }
 
         .map-marker-5 span {
-            background-color: #B27C4C;
+            background-image: url(/img/cars/green.png);
         }
 
         .map-marker-6 span {
-            background-color: #4CB26F;
-        }
-
-        .map-marker-7 span {
-            background-color: #9112B2;
-        }
-
-        .map-marker-8 span {
-            background-color: #FFBC19;
-        }
-
-        .map-marker-9 span {
-            background-color: #0DFF87;
+            background-image: url(/img/cars/purple.png);
         }
     </style>
 </head>
@@ -84,14 +102,23 @@
     for (let i = 0; i < 10; i++) {
         icons.push(L.divIcon({
             className: "map-marker map-marker-" + i,
-            iconAnchor: [0, 24],
-            labelAnchor: [-6, 0],
-            popupAnchor: [0, -36],
+            iconAnchor: [0, 0],
+            labelAnchor: [0, 0],
+            popupAnchor: [0, 0],
             html: '<span></span>'
         }));
     }
 
     let map = L.map('mapid').setView([49.005171, 8.437448], 18);
+    document.getElementById('mapid').classList.add('zoom-' + map.getZoom());
+
+    map.on('zoomstart', function () {
+        document.getElementById('mapid').classList.remove('zoom-' + map.getZoom());
+    });
+
+    map.on('zoomend', function () {
+        document.getElementById('mapid').classList.add('zoom-' + map.getZoom());
+    });
 
     // See http://leaflet-extras.github.io/leaflet-providers/preview/
     L.tileLayer('http://' + window.location.hostname + ':80/osm_tiles/{z}/{x}/{y}.png', {
@@ -106,10 +133,13 @@
         if (stations[cam.stationId]) {
             let marker = stations[cam.stationId].marker;
             marker.setLatLng(cam.position);
+            marker.setRotationAngle(cam.orientation || 0);
             stations[cam.stationId].last_update = +new Date;
         } else {
             let marker = L.marker(cam.position, {
-                icon: icons[cam.stationId % 10]
+                icon: icons[cam.stationId % 7],
+                rotationAngle: cam.orientation || 0,
+                rotationOrigin: 'top left'
             }).addTo(map);
 
             stations[cam.stationId] = {
@@ -139,6 +169,8 @@
     let socket = new WebSocket("ws://" + window.location.host + "/updates");
     socket.onmessage = function (e) {
         try {
+            console.log(e.data);
+
             let data = JSON.parse(e.data);
 
             if (data.type === "cam") {
